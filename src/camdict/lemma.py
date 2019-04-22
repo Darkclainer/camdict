@@ -17,6 +17,30 @@ class Lemma:
         return json.dumps(self, cls=LemmaJSONEncoder, **kargs)
 
     @staticmethod
+    def from_dict(lemma_dict):
+        lemma = Lemma(lemma_dict['lemma'], lemma_dict['part_of_speech'], lemma_dict['language'])
+        lemma.transcriptions = lemma_dict['transcriptions']
+        lemma.definition = lemma_dict['definition']
+        lemma.guide_word = lemma_dict['guide_word']
+        lemma.alternative_form = lemma_dict['alternative_form']
+        lemma.examples = lemma_dict['examples']
+        lemma.gc = set(lemma_dict['gc'])
+        return lemma
+
+    def to_dict(self):
+        return {
+            'lemma': self.lemma,
+            'part_of_speech': self.part_of_speech,
+            'language': self.language,
+            'transcriptions': self.transcriptions,
+            'definition': self.definition,
+            'guide_word': self.guide_word,
+            'alternative_form': self.alternative_form,
+            'examples': self.examples,
+            'gc': list(self.gc)
+        }
+
+    @staticmethod
     def decode(json_repr, **kargs):
         return json.loads(json_repr, cls=LemmaJSONDecoder, **kargs)
 
@@ -27,17 +51,7 @@ class Lemma:
 class LemmaJSONEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, Lemma):
-            return {
-                'lemma': obj.lemma,
-                'part_of_speech': obj.part_of_speech,
-                'language': obj.language,
-                'transcriptions': obj.transcriptions,
-                'definition': obj.definition,
-                'guide_word': obj.guide_word,
-                'alternative_form': obj.alternative_form,
-                'examples': obj.examples,
-                'gc': list(obj.gc)
-            }
+            return obj.to_dict()
         else:
             return json.JSONEncoder.default(self, obj)
 
@@ -45,13 +59,6 @@ class LemmaJSONDecoder(json.JSONDecoder):
     def decode(self, s):
         lemma_dict = json.JSONDecoder.decode(self, s)
         try:
-            lemma = Lemma(lemma_dict['lemma'], lemma_dict['part_of_speech'], lemma_dict['language'])
-            lemma.transcriptions = lemma_dict['transcriptions']
-            lemma.definition = lemma_dict['definition']
-            lemma.guide_word = lemma_dict['guide_word']
-            lemma.alternative_form = lemma_dict['alternative_form']
-            lemma.examples = lemma_dict['examples']
-            lemma.gc = set(lemma_dict['gc'])
-            return lemma
+            return Lemma.from_dict(lemma_dict)
         except KeyError as e:
             raise json.JSONDecodeError() from e
