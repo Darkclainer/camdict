@@ -3,15 +3,14 @@ import logging
 
 from bs4 import BeautifulSoup, SoupStrainer, Tag
 
-from lemma import Lemma
-import ipahelper
+from .lemma import Lemma
+from .exceptions import CannotParsePage, UnknownIpa
+from . import ipahelper
 
 logger = logging.getLogger(__name__)
 
 __all__ = ['parse']
 
-class CannotParsePage(Exception): pass
-class UnknownIpa(CannotParsePage): pass
 
 def deal_with_newlines(s):
     s = s.replace('\n', ' ')
@@ -39,21 +38,27 @@ def make_lemma(info):
 
     return lemma
 
-def parse(page_content_html, parser = 'html.parser'):
-    entry_content_strainer = SoupStrainer(id='entryContent')
-    soup = BeautifulSoup(page_content_html, parser, parse_only=entry_content_strainer)
-
-    lemmas_list = list(get_lemmas_from_soup(soup))
+def parse(page_content_html, parser='html.parser'):
+    try:
+        entry_content_strainer = SoupStrainer(id='entryContent')
+        soup = BeautifulSoup(page_content_html, parser, parse_only=entry_content_strainer)
+        lemmas_list = list(get_lemmas_from_soup(soup))
+    except CannotParsePage:
+        raise 
+    except (AttributeError, TypeError) as exception:
+        raise CannotParsePage('Internal error while parsing soup tree') from exception
+    except Exception as exception:
+        raise CannotParsePage('Unknow error') from exception
 
     return lemmas_list
 
 def get_lemmas_from_soup(soup):
     page = soup.find('div', class_='page')
     if not page:
-        raise CannotParsePage('<div class="page"> is absent! Can not continue, because it must contain sorter')
+        raise CannotParsePage('<div class="page"> is absent!')
     sorter = soup.find('div', attrs={'data-type':'sorter'})
     if not sorter:
-        raise CannotParsePage('<div data-type="sorter"> is absent! It must containt word datasets!')
+        raise CannotParsePage('<div data-type="sorter"> is absent!')
     word_datasets = sorter.findAll(class_='dictionary', recursive=False)
 
     for word_dataset in word_datasets:
