@@ -1,6 +1,9 @@
 from pathlib import Path
 import json
+import traceback
+
 import pytest
+import requests
 
 from camdict import lemmaparser
 from camdict.lemma import Lemma
@@ -12,9 +15,32 @@ try:
 except ModuleNotFoundError:
     parser = 'html.parser'
 
+headers = {
+    'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0'
+}
+
+def pytest_addoption(parser):
+    parser.addoption('--update-html', 
+                     action='store_true', 
+                     dest='update_html_files', 
+                     help='download html files from dictionary (also rewrite existent)')
+    parser.addoption('--only-words', 
+                     action='store', 
+                     nargs='+', 
+                     dest='test_only_words', 
+                     help='test only specified words')
+
 def pytest_collect_file(parent, path):
     if path.ext =='.json' and path.dirname.endswith('/json'):
-        return JsonFile(path, parent)
+        test_only = parent.config.getoption('test_only_words')
+        if not test_only or path.purebasename in test_only:
+            return JsonFile(path, parent)
+
+def download_html_file(word_id, path):
+    url = 'https://dic' + 'tionary.ca' + 'mbri' + 'dge.org/dictionary/english/' + word_id
+    page = requests.get(url, headers=headers)
+    with open(path, 'w') as html_file:
+        html_file.write(page.text)
 
 class JsonFile(pytest.File):
     def collect(self):
@@ -24,18 +50,24 @@ class JsonFile(pytest.File):
             try:
                 tests_spec = json.load(json_file)
             except json.JSONDecodeError as e:
-                yield FailTest(testname, self, 'Can not load test file due to JSONDecodeError.', str(e))
+                yield FailTest(testname, self, 'Can not load test file due to JSONDecodeError.', traceback.format_exc())
                 return
 
         html_path = json_path.parent.parent / 'html' / (json_path.stem + '.html')
+        if self.parent.config.getoption('update_html_files'):
+            try:
+                download_html_file(testname, html_path)
+            except Exception as e:
+                yield FailTest(testname, self, 'Can not download/save file {}.'.format(html_path), traceback.format_exc())
+                return
         try:
             with open(html_path) as html_file:
                 lemmas_list = lemmaparser.parse(html_file, parser=parser)
         except FileNotFoundError as e:
-            yield FailTest(testname, self, 'File {} does not exists'.format(html_path), str(e))
+            yield FailTest(testname, self, 'File {} does not exists'.format(html_path), traceback.format_exc())
             return
         except CannotParsePage as e:
-            yield FailTest(testname, self, 'Can not parse file {}.'.format(html_path), str(e))
+            yield FailTest(testname, self, 'Can not parse file {}.'.format(html_path), traceback.format_exc())
             return
 
         try:
@@ -46,7 +78,7 @@ class JsonFile(pytest.File):
                 return
             lemmas_info = tests_spec['lemmas']
         except KeyError as e:
-            yield FailTest(testname, self, 'Test file has no required attribute.', str(e))
+            yield FailTest(testname, self, 'Test file has no required attribute.', traceback.format_exc())
             return
 
         for lemma_info in lemmas_info:
