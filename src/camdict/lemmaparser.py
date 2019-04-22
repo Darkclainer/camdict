@@ -217,7 +217,7 @@ def extract_gc_from_def_info(def_info):
     return {gc.get_text(strip=True) for gc in gc_tags.find_all(class_='gc', recursive=False)}
 
 def extract_alternative_form_from_def_info(def_info):
-    v_tag = def_info(class_='v')
+    v_tag = def_info.find(class_='v')
     if not v_tag:
         return None
     return v_tag.get_text(strip=True)
