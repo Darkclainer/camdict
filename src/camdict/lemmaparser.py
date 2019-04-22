@@ -124,14 +124,14 @@ def extract_lemmas_data_from_header(pos_header):
 
     headword = di_title.find(class_='headword')
     info['lemma'] = headword.get_text(strip=True)
-    info['part_of_speech'] = extract_pos_with_headword(headword)
+    info['part_of_speech'] = extract_part_of_speech_with_headword(headword)
     info['transcriptions'] = extract_transcriptions_from_pos_header(pos_header) 
     return info
 
-def extract_pos_with_headword(headword):
+def extract_part_of_speech_with_headword(headword):
     posgram = headword.find_next_sibling('span', class_='posgram')
     if posgram:
-        return posgram.get_text(strip=True)
+        return posgram.get_text(strip=False)
     else:
         return 'unknown'
 
@@ -149,7 +149,7 @@ def get_transcriptions_from_pron_tags(pron_tags):
             continue
 
         region = region_tag.get_text(strip=True).lower()
-        transcription = [extract_transcription_from_ipa(ipa_tag) for ipa_tag in ipa_tags]
+        transcription = ', '.join(extract_transcription_from_ipa(ipa_tag) for ipa_tag in ipa_tags)
         yield region, transcription
 
 def extract_transcription_from_ipa(ipa_tag):
