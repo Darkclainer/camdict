@@ -1,0 +1,40 @@
+{
+    "total": 26,
+    "lemmas": [
+        {
+            "index": 7,
+            "lemma": {
+                "lemma": "lay",
+                "part_of_speech": "verb",
+                "language": "british",
+                "transcriptions": {
+                    "uk": "leɪ",
+                    "us": "leɪ"
+                },
+                "definition": "to say that you own something",
+                "guide_word": "express",
+                "alternative_form": "lay claim to sth",
+                "examples": [
+                    "Two companies have laid claim to the design."
+                ],
+                "gc": []
+            }
+        },
+        {
+            "index": 18,
+            "lemma": {
+                "lemma": "lay",
+                "part_of_speech": "unknown",
+                "language": "american-english",
+                "transcriptions": {
+                    "us": "leɪ"
+                },
+                "definition": "past simple of lie",
+                "guide_word": "lie",
+                "alternative_form": null,
+                "examples": [],
+                "gc": []
+            }
+        }
+    ]
+}

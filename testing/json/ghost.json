@@ -1,0 +1,72 @@
+{
+    "total": 6,
+    "lemmas": [
+        {
+            "index": 0,
+            "lemma": {
+                "lemma": "ghost",
+                "part_of_speech": "noun",
+                "language": "british",
+                "transcriptions": {
+                    "uk": "ɡəʊst",
+                    "us": "ɡoʊst"
+                },
+                "definition": "the spirit of a dead person, sometimes represented as a pale, almost transparent image of that person that some people believe appears to people who are alive",
+                "guide_word": "spirit",
+                "alternative_form": null,
+                "examples": [
+                    "Do you believe in ghosts?",
+                    "The gardens are said to be haunted by the ghost of a child who drowned in the river."
+                ],
+                "gc": [
+                    "C"
+                ]
+            }
+        },
+        {
+            "index": 2,
+            "lemma": {
+                "lemma": "ghost",
+                "part_of_speech": "verb",
+                "language": "british",
+                "transcriptions": {
+                    "uk": "ɡəʊst",
+                    "us": "ɡoʊst"
+                },
+                "definition": "to write a book, article, etc. for another person to publish under their own name",
+                "guide_word": "write",
+                "alternative_form": "ghostwrite",
+                "examples": [
+                    "A writer friend of his was ghosting the autobiography of a jockey.",
+                    "Most of Reagan's newspaper columns were ghosted for him."
+                ],
+                "gc": [
+                    "T"
+                ]
+            }
+        },
+        {
+            "index": 3,
+            "lemma": {
+                "lemma": "ghost",
+                "part_of_speech": "verb",
+                "language": "british",
+                "transcriptions": {
+                    "uk": "ɡəʊst",
+                    "us": "ɡoʊst"
+                },
+                "definition": "to end a relationship with someone suddenly by stopping all communication with them",
+                "guide_word": "end communication",
+                "alternative_form": null,
+                "examples": [
+                    "Should I message her back or just ghost?",
+                    "I couldn't understand why I'd been ghosted."
+                ],
+                "gc": [
+                    "I",
+                    "T"
+                ]
+            }
+        }
+    ]
+}

@@ -37,7 +37,7 @@ class Lemma:
             'guide_word': self.guide_word,
             'alternative_form': self.alternative_form,
             'examples': self.examples,
-            'gc': list(self.gc)
+            'gc': sorted(self.gc)
         }
 
     @staticmethod

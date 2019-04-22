@@ -1,0 +1,47 @@
+{
+    "total": 8,
+    "lemmas": [
+        {
+            "index": 0,
+            "lemma": {
+                "lemma": "hello",
+                "part_of_speech": "exclamation, noun",
+                "language": "british",
+                "transcriptions": {
+                    "uk": "heˈləʊ",
+                    "us": "heˈloʊ"
+                },
+                "definition": "used when meeting or greeting someone",
+                "guide_word": null,
+                "alternative_form": null,
+                "examples": [
+                    "Hello, Paul. I haven't seen you for ages.",
+                    "I know her vaguely - we've exchanged hellos a few times.",
+                    "I just thought I'd call by and say hello.",
+                    "And a big hello (= welcome) to all the parents who've come to see the show."
+                ],
+                "gc": []
+            }
+        },
+        {
+            "index": 5,
+            "lemma": {
+                "lemma": "hello",
+                "part_of_speech": "exclamation, noun",
+                "language": "american-english",
+                "transcriptions": {
+                    "us": "heˈloʊ, hə-"
+                },
+                "definition": "used when meeting or greeting someone",
+                "guide_word": null,
+                "alternative_form": null,
+                "examples": [
+                    "\"Hello, Paul,\" she said, \"I haven’t seen you for months.\"",
+                    "I know her vaguely – we’ve exchanged hellos a few times.",
+                    "Come and say hello to my friends (= meet them)."
+                ],
+                "gc": ["C"]
+            }
+        }
+    ]
+}

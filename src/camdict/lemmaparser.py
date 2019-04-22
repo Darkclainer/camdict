@@ -124,16 +124,19 @@ def extract_lemmas_data_from_header(pos_header):
 
     headword = di_title.find(class_='headword')
     info['lemma'] = headword.get_text(strip=True)
-    info['part_of_speech'] = extract_part_of_speech_with_headword(headword)
+    posgram = headword.find_next_sibling('span', class_='posgram')
+    info['part_of_speech'] = extract_part_of_speech_from_posgram(posgram)
+    info['gc'] = extract_gc_from_def_info(posgram) # also work with posgram
     info['transcriptions'] = extract_transcriptions_from_pos_header(pos_header) 
     return info
 
-def extract_part_of_speech_with_headword(headword):
-    posgram = headword.find_next_sibling('span', class_='posgram')
-    if posgram:
-        return posgram.get_text(strip=False)
-    else:
+def extract_part_of_speech_from_posgram(posgram):
+    if not posgram:
         return 'unknown'
+    pos_tags = posgram.find_all('span', class_='pos')
+    if not pos_tags:
+        return 'unknown'
+    return ', '.join(pos.get_text(strip=True) for pos in pos_tags)
 
 def extract_transcriptions_from_pos_header(pos_header):
     pron_tags = pos_header.find_all('span', class_='pron')
@@ -199,8 +202,8 @@ def get_lemma_from_def_block(def_block, lemmas_shared):
 
     def_info = def_head.find(class_='def-info', recursive=False)
     if def_info:
-        lemmas_shared['gc'] = extract_gc_from_def_info(def_info)
-        lemmas_shared['alternative_form'] = extract_alternative_form_from_def_info(def_info)
+        lemmas_shared['gc'] = extract_gc_from_def_info(def_info) | lemmas_shared.get('gc', set())
+        lemmas_shared.setdefault('alternative_form', extract_alternative_form_from_def_info(def_info))
 
     lemmas_shared['examples'] = [example for example in get_examples_from_def_block(def_block)]
 
@@ -211,9 +214,11 @@ def extract_definition_from_def_head(def_head):
     return format_definition(def_tag.get_text())
 
 def extract_gc_from_def_info(def_info):
+    if not def_info:
+        return set()
     gc_tags = def_info.find('span', class_='gcs')
     if not gc_tags:
-        return {}
+        return set()
     return {gc.get_text(strip=True) for gc in gc_tags.find_all(class_='gc', recursive=False)}
 
 def extract_alternative_form_from_def_info(def_info):
