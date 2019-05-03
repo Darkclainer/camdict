@@ -1,0 +1,2 @@
+recursive-include testing *.py
+include testing/json/*.json
