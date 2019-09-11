@@ -6,7 +6,7 @@ long_description = ''
 
 setuptools.setup(
     name="camdict-dio",
-    version="0.1",
+    version="0.1.1",
     author="Darkclainer",
     author_email="darkclainer@gmail.com",
     description="Parser for html page of web dictionary",
