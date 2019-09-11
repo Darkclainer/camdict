@@ -197,7 +197,7 @@ def get_lemmas_from_sense_body(sense_body, lemmas_shared):
 # --- def-block lemma extraction section ---
 def get_lemma_from_def_block(def_block, lemmas_shared):
     lemmas_shared = dict(lemmas_shared)
-    ddef_h = def_block.find(class_='ddef_h', recursive=False)
+    ddef_h = def_block.find(class_='ddef_h')#, recursive=False)
     lemmas_shared['definition'] = extract_definition_from_ddef_h(ddef_h)
 
     def_info = ddef_h.find(class_='def-info', recursive=False)
@@ -205,7 +205,7 @@ def get_lemma_from_def_block(def_block, lemmas_shared):
         lemmas_shared['gc'] = extract_gc_from_def_info(def_info) | lemmas_shared.get('gc', set())
         lemmas_shared.setdefault('alternative_form', extract_alternative_form_from_def_info(def_info))
 
-    lemmas_shared['examples'] = [example for example in get_examples_from_def_block(def_block)]
+    lemmas_shared['examples'] = [example for example in get_examples_from_def_block(ddef_h.parent)]
 
     return make_lemma(lemmas_shared)
 
