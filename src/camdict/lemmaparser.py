@@ -59,36 +59,43 @@ def get_lemmas_from_soup(soup):
     sorter = soup.find('div', attrs={'data-type':'sorter'})
     if not sorter:
         raise CannotParsePage('<div data-type="sorter"> is absent!')
-    word_datasets = sorter.findAll(class_='dictionary', recursive=False)
+    dictionary_tags = sorter.findAll(class_='dictionary', recursive=False)
 
-    for word_dataset in word_datasets:
-        yield from get_lemmas_from_dataset(word_dataset)
+    for dictionary_tag in dictionary_tags:
+        yield from get_lemmas_from_dictionary_tag(dictionary_tag)
 
 data_id_to_language = {
         'cald4': 'british',
         'cacd': 'american-english',
         'cbed': 'business-english'
 }
-def get_language_of_dataset(word_dataset):
-    if word_dataset.has_attr('data-wrodlist-dataset'):
-        return word_dataset['data-wordlist-dataset']
-    elif word_dataset.has_attr('data-id'):
-        data_id = word_dataset['data-id']
+def get_language_of_dictionary_tag(dictionary_tag):
+    if dictionary_tag.has_attr('data-wrodlist-dataset'):
+        return dictionary_tag['data-wordlist-dataset']
+    elif dictionary_tag.has_attr('data-id'):
+        data_id = dictionary_tag['data-id']
         language = data_id_to_language.get(data_id)
         if language is None:
             raise CannotParsePage('Unkown data-id: {}'.format(data_id))
         return language
 
-    logger.debug('Can not determine word_dataset language')
+    logger.debug('Can not determine dictionary_tag language')
     return None
 
-def get_lemmas_from_dataset(word_dataset):
+def get_lemmas_from_dictionary_tag(dictionary_tag):
     lemmas_shared = {} # shared data between lemas
-    lemmas_shared['language'] = get_language_of_dataset(word_dataset)
+    lemmas_shared['language'] = get_language_of_dictionary_tag(dictionary_tag)
 
-    entry_body_tags = word_dataset.find_all(class_='entry-body')
-    for entry_body_tag in entry_body_tags:
-        yield from get_lemmas_from_entry_body(entry_body_tag, lemmas_shared)
+    link_tag = dictionary_tag.find('div', class_='link', recursive=False)
+    superentry = link_tag.find('div', class_='superentry', recursive=False)
+    di_body = superentry.find('div', class_='di-body', recursive=False)
+    
+    child = di_body.div
+    if 'entry' in child['class']:
+        entry_body = child.find('div', class_='entry-body', recursive=False)
+        return get_lemmas_from_entry_body(entry_body, lemmas_shared)
+    else:
+        return get_lemmas_from_pr_idiom_block(child, lemmas_shared) # class="pr idiom-block"
 
 def get_lemmas_from_entry_body(entry_body_tag, lemmas_shared):
     # find all wordTags - big frame with transcription and other. Distinguished by part of speech may be
@@ -260,9 +267,9 @@ def get_lemmas_from_pv_block(pv_block, lemmas_info):
     lemmas_info.update(extract_lemmas_info_from_pv_block(pv_block))
 
     pv_body = pv_block.find(class_='pv-body', recursive=False)
-    sense_blocks = pv_body.find_all(class_='sense-block')
-    for sense_block in sense_blocks:
-        yield from get_lemmas_from_dsense(sense_block, lemmas_info)
+    dsenses = pv_body.find_all(class_='dsense')
+    for dsense in dsenses:
+        yield from get_lemmas_from_dsense(dsense, lemmas_info)
 
 def extract_lemmas_info_from_pv_block(pv_block):
     info = {}
@@ -286,12 +293,18 @@ def get_lemmas_from_idiom_block(idiom_block, lemmas_info):
     lemmas_info['transcriptions'] = {}
 
     idiom_body = idiom_block.find(class_='idiom-body', recursive=False)
-    sense_blocks = idiom_body.find_all(class_='sense-block', recursive=False)
-    for sense_block in sense_blocks:
-        yield from get_lemmas_from_dsense(sense_block, lemmas_info)
+    dsenses = idiom_body.find_all(class_='dsense', recursive=False)
+    for dsense in dsenses:
+        yield from get_lemmas_from_dsense(dsense, lemmas_info)
 
 def extract_headword_from_idiom_block(idiom_block):
     di_title = idiom_block.find(class_='di-title', recursive=False)
     headword = di_title.find(class_='headword', recursive=False)
     return headword.get_text(strip=True)
 # --- idiom-block lemma extraction section --- END
+
+def get_lemmas_from_pr_idiom_block(pr_idiom_block, lemmas_info):
+    idiom_blocks = pr_idiom_block.find_all('div', class_='idiom-block')
+    for idiom_block in idiom_blocks:
+        yield from get_lemmas_from_idiom_block(idiom_block, lemmas_info)
+
