@@ -6,7 +6,7 @@ def parse(html_text, parser='html.parser', max_suggestions = 20):
         strainer = SoupStrainer('ul', class_='hul-u')
         soup = BeautifulSoup(html_text, parser, parse_only=strainer)
 
-        suggestion_list = entry_body.find_all('li', recursive=False)
+        suggestion_list = soup.find_all('li')
         if not suggestion_list:
             raise CannotParsePage()
 
